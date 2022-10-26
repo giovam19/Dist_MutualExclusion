@@ -28,7 +28,7 @@ public class ProcessLWA1 {
                 waitHeavyweight();
                 //requestCS
                 for (int i = 0; i < 10; i++) {
-                    System.out.println("Soc el proces lightweight A1");
+                    System.out.println(i + ") Soc el proces lightweight A1");
                     Thread.sleep(1000);
                 }
                 //releaseCS

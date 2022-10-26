@@ -26,14 +26,14 @@ public class ProcessA {
 
     public void startProcess() throws Exception {
         while (true) {
-            while (token != 1)
-                listenHeavyweight();
+            while (token == 0);
+                //listenHeavyweight();
             for (int i = 0; i < NUM_LIGHTWEIGHTS; i++)
                 sendActionToLightweight();
             while (answersLW < NUM_LIGHTWEIGHTS)
                 listenLightweight();
             token = 0;
-            sendTokenToHeavyweight();
+            /*sendTokenToHeavyweight();*/
         }
     }
 
@@ -48,17 +48,18 @@ public class ProcessA {
 
     private void sendActionToLightweight() throws IOException {
         answersLW = 0;
-        for (Socket s : socketSC) {
-            output = new DataOutputStream(s.getOutputStream());
+        for (int i = 0; i < NUM_LIGHTWEIGHTS; i++) {
+            output = new DataOutputStream(socketSC[i].getOutputStream());
             output.writeUTF("TOKENOK");
             output.flush();
+            System.out.println("s");
         }
     }
 
     private void listenLightweight() throws IOException {
         String str;
-        for (Socket s : socketSC) {
-            input = new DataInputStream(s.getInputStream());
+        for (int i = 0; i < NUM_LIGHTWEIGHTS; i++) {
+            input = new DataInputStream(socketSC[i].getInputStream());
             str = input.readUTF();
             if (str.equals("LWOK"))
                 answersLW++;

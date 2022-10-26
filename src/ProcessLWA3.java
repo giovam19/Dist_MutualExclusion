@@ -31,7 +31,7 @@ public class ProcessLWA3 {
                 waitHeavyweight();
                 //requestCS
                 for (int i = 0; i < 10; i++) {
-                    System.out.println("Soc el proces lightweight A3");
+                    System.out.println(i + ") Soc el proces lightweight A3");
                     Thread.sleep(1000);
                 }
                 //releaseCS

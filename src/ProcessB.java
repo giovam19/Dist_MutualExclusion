@@ -27,7 +27,7 @@ public class ProcessB {
 
     public void startProcess() throws Exception {
         while (true) {
-            while (token != 1)
+            while (token == 0)
                 listenHeavyweight();
             for (int i = 0; i < NUM_LIGHTWEIGHTS; i++)
                 sendActionToLightweight();
