@@ -29,14 +29,15 @@ public class ProcessLW extends Thread {
     }
 
     private void waitHeavyweight() throws Exception {
-        String s = br.readLine();
-        if (s.equals("TOKENLWOK")) {
-            token = 1;
+        String s = "";
+        while (!s.equals("TOKENLWOK")) {
+            s = br.readLine();
         }
+        token = 1;
     }
 
     private void notifyHeavyweight() throws Exception {
-        output.writeBytes("LWOK");
+        output.writeBytes("LWOK\n\r");
         //Thread.sleep(0, 15);
         output.flush();
         token = 0;

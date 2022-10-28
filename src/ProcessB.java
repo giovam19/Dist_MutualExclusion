@@ -9,6 +9,7 @@ public class ProcessB extends ProcessHW{
     public ProcessB() {
         try {
             token = 0;
+            id = "B";
             NUM_LIGHTWEIGHTS = 2;
             answersLW = 0;
             socketSC = new Socket[NUM_LIGHTWEIGHTS];
@@ -21,11 +22,9 @@ public class ProcessB extends ProcessHW{
 
     protected void makeConnections() {
         try {
-            System.out.println("Waiting connections in B ...");
             for (int i = 0; i < NUM_LIGHTWEIGHTS; i++) {
                 socketSC[i] = serverClient.accept();
             }
-            System.out.println("All connected in B ...");
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }

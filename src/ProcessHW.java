@@ -4,6 +4,7 @@ import java.net.Socket;
 
 public class ProcessHW extends Thread{
     protected int token;
+    protected String id;
     protected int NUM_LIGHTWEIGHTS;
     protected int answersLW;
     protected ServerSocket serverClient;
@@ -17,12 +18,13 @@ public class ProcessHW extends Thread{
         makeConnections();
         while (true) {
             try {
-                while (token == 0)
+                while (token == 0) {
                     listenHeavyweight();
-                for (int i = 0; i < NUM_LIGHTWEIGHTS; i++)
-                    sendActionToLightweight();
-                while (answersLW < NUM_LIGHTWEIGHTS)
+                }
+                sendActionToLightweight();
+                while (answersLW < NUM_LIGHTWEIGHTS) {
                     listenLightweight();
+                }
                 token = 0;
                 answersLW = 0;
                 sendTokenToHeavyweight();
