@@ -8,7 +8,7 @@ public class ProcessLWA2 extends ProcessLW {
         try {
             token = 0;
             id = "A2";
-            //clientClient = new ServerSocket(1133);
+            serverCC = new ServerSocket(1133);
             socketSC = new Socket("localhost", 3030);
             //socketCC = new Socket[2];
             input = socketSC.getInputStream();

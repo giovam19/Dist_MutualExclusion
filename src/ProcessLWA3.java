@@ -9,7 +9,7 @@ public class ProcessLWA3 extends ProcessLW {
             token = 0;
             id = "A3";
             socketSC = new Socket("localhost", 3030);
-            //socketCC = new Socket("localhost", 1133);
+            socketCC = new Socket("localhost", 1133);
             input = socketSC.getInputStream();
             br = new BufferedReader(new InputStreamReader(input));
             output = new DataOutputStream(socketSC.getOutputStream());
