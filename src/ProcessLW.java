@@ -13,15 +13,16 @@ public class ProcessLW extends Thread {
     protected DataOutputStream output;
 
     public void startProcess() {
+        makeConnections();
         while (true) {
             try {
                 waitHeavyweight();
-                requestCS();
+                //requestCS();
                 for (int i = 0; i < 10; i++) {
                     System.out.println(i + ") Soc el proces lightweight " + id);
                     Thread.sleep(1000);
                 }
-                releaseCS();
+                //releaseCS();
                 notifyHeavyweight();
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -63,6 +64,10 @@ public class ProcessLW extends Thread {
         output.writeBytes("OKCC\n\r");
         output.flush();
         token = 0;
+    }
+
+    protected void makeConnections() {
+
     }
 
     protected void makeDelay() throws InterruptedException {}
