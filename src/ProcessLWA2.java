@@ -1,7 +1,6 @@
-import java.io.*;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 
 public class ProcessLWA2 extends ProcessLW {
 
@@ -11,6 +10,7 @@ public class ProcessLWA2 extends ProcessLW {
             token = 0;
             id = 1;
             name = "A2";
+            myts = 0;
             serverCC = new ServerSocket(1133);
             socketCC = new Socket[numHermanos];
             timestamps = new long[numHermanos+1];
@@ -30,5 +30,15 @@ public class ProcessLWA2 extends ProcessLW {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    protected void requestCS() {
+        lamportRequest();
+    }
+
+    @Override
+    protected void releaseCS() throws IOException {
+        lamportRelease();
     }
 }

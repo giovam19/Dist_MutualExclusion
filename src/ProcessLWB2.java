@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -9,6 +10,7 @@ public class ProcessLWB2 extends ProcessLW {
             token = 0;
             id = 1;
             name = "B2";
+            myts = Long.MAX_VALUE;
             serverCC = new ServerSocket(3311);
             socketCC = new Socket[numHermanos];
             timestamps = new long[numHermanos+1];
@@ -28,5 +30,15 @@ public class ProcessLWB2 extends ProcessLW {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    protected void requestCS() {
+        ricartRequest();
+    }
+
+    @Override
+    protected void releaseCS() throws IOException {
+        ricartRelease();
     }
 }
