@@ -25,7 +25,6 @@ public class ProcessLW extends Thread {
 
     public void startProcess() {
         makeConnections();
-        setTimeouts();
         while (true) {
             try {
                 waitHeavyweight();
@@ -43,44 +42,11 @@ public class ProcessLW extends Thread {
         }
     }
 
-    private int receiveMessage() {
-        boolean HW = true;
-        String s;
-        int value = -1;
-
-        while (value == -1) {
-            try {
-                if (HW) {
-                    //leer del HW
-                    input = new ObjectInputStream(socketSC.getInputStream());
-                    s = (String) input.readObject();
-                    //process message
-                    value = manageString(s, socketSC);
-                } else {
-                    //leer del LW
-                    for (int i = 0; i < numHermanos; i++) {
-                        try {
-                            input = new ObjectInputStream(socketCC[i].getInputStream());
-                            s = (String) input.readObject();
-                            //process message
-                             value = manageString(s, socketCC[i]);
-                        } catch (Exception ignored) {}
-                    }
-
-                    HW ^= true; //togglea el boolean
-                }
-            } catch (Exception e) {
-                HW ^= true; //togglea el boolean
-            }
-        }
-
-        return value;
-    }
-
-    private void waitHeavyweight() {
-        int res = -1;
-        while (res != 1){
-            res = receiveMessage();
+    private void waitHeavyweight() throws Exception {
+        input = new ObjectInputStream(socketSC.getInputStream());
+        String s = "";
+        while (!s.equals("TOKENLWOK")) {
+            s = (String) input.readObject();
         }
     }
 
@@ -90,23 +56,7 @@ public class ProcessLW extends Thread {
     }
 
     protected void requestCS() {
-    }
 
-    protected void lamportRequest() {
-        try {
-            myts = System.currentTimeMillis(); //get timestamp
-            resetReleases();
-            timestamps[id] = myts; //save it in queue
-
-            String token = "requestLa-" + myts + "-" + id;
-            broadcastMessage(token); //broadcast request
-            receiveMessage();
-            while (!okayCS()) { //resolve priority
-                waitCS();
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     private boolean okayCS() {
@@ -126,33 +76,28 @@ public class ProcessLW extends Thread {
 
     private void waitCS() {
         //need to read from others
-        receiveMessage();
+        for (int i = 0; i < numHermanos; i++) {
+            try {
+                socketCC[i].setSoTimeout(2);
+                input = new ObjectInputStream(socketCC[i].getInputStream());
+                String s = (String) input.readObject();
+                //process message
+                manageString(s);
+            } catch (Exception ignored) {
+            }
+        }
     }
 
-    private int manageString(String s, Socket socket) throws IOException {
-        if (s.equals("TOKENLWOK")) {
-            return 1;
-        } else if (s.contains("requestLa")) {
+    private void manageString(String s) throws IOException {
+        if (s.contains("requestLa")) {
             String[] split = s.split("-");
             long ts = Long.parseLong(split[1]);
             int id = Integer.parseInt(split[2]);
             timestamps[id] = ts;
-            //send ack
-            output = new ObjectOutputStream(socket.getOutputStream());
-            String ack = "ACK-" + myts + "-" + this.id;
-            output.writeObject(ack);
-            return 2;
         } else if (s.contains("releaseLa")) {
             String[] split = s.split("-");
             int id =  Integer.parseInt(split[1]);
             timestamps[id] = 0;
-            return 3;
-        } else if (s.contains("ACK")) {
-            String[] split = s.split("-");
-            long ts = Long.parseLong(split[1]);
-            int id = Integer.parseInt(split[2]);
-            timestamps[id] = ts;
-            return 4;
         } else if (s.contains("requestRi")) {
             String[] split = s.split("-");
             long ts = Long.parseLong(split[1]);
@@ -167,25 +112,21 @@ public class ProcessLW extends Thread {
                 //encuar
                 timestamps[id] = ts;
             }
-            return 5;
         } else if (s.contains("OKAY")) {
             String[] split = s.split("-");
             int id = Integer.parseInt(split[1]);
             if (this.id == id)
                 return 6;
         }
-
-        return -1;
     }
 
-    private void setTimeouts() {
-        try {
-            socketSC.setSoTimeout(2);
-            for (int i = 0; i < socketCC.length; i++) {
-                socketCC[i].setSoTimeout(2);
+    private void resetTimeout() {
+        for (int i = 0; i < numHermanos; i++) {
+            try {
+                socketCC[i].setSoTimeout(0);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
         }
     }
 
@@ -196,56 +137,12 @@ public class ProcessLW extends Thread {
         }
     }
 
-    protected void lamportRelease() throws IOException {
-        String s = "releaseLa-" + id;
-        broadcastMessage(s);
-    }
-
-    protected void releaseCS() throws IOException {
-
-    }
-
-    protected void ricartRequest() {
-        try {
-            myts = System.currentTimeMillis(); //get timestamp
-            String token = "requestRi-" + myts + "-" + id;
-            broadcastMessage(token);
-            int numOkay = 0;
-            while (numOkay < numHermanos) {
-                int res = receiveMessage();
-                if (res == 6)
-                    numOkay++;
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    protected void ricartRelease() throws IOException {
-        myts = Long.MAX_VALUE;
-        for (int i = 0; i < timestamps.length; i++) {
-            if (timestamps[i] != Long.MAX_VALUE) {
-                String s = "OKAY-"+i;
-                broadcastMessage(s);
-                timestamps[i] = Long.MAX_VALUE;
-            }
-        }
-    }
-
     protected void makeConnections() {
 
     }
 
     protected void fillTimestamps() {
         Arrays.fill(timestamps, Long.MAX_VALUE);
-    }
-
-    protected void resetReleases() {
-        for (int i = 0; i < timestamps.length; i++) {
-            if (timestamps[i] == 0) {
-                timestamps[i] = Long.MAX_VALUE;
-            }
-        }
     }
 
     @Override

@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -35,10 +34,5 @@ public class ProcessLWB2 extends ProcessLW {
     @Override
     protected void requestCS() {
         ricartRequest();
-    }
-
-    @Override
-    protected void releaseCS() throws IOException {
-        ricartRelease();
     }
 }
