@@ -23,7 +23,7 @@ public class ProcessB extends ProcessHW{
             for (int i = 0; i < NUM_LIGHTWEIGHTS; i++) {
                 socketSC[i] = serverClient.accept();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }

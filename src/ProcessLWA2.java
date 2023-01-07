@@ -1,15 +1,21 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Date;
 
 public class ProcessLWA2 extends ProcessLW {
 
     public ProcessLWA2() {
         try {
+            numHermanos = 2;
             token = 0;
-            id = "A2";
+            id = 1;
+            name = "A2";
             serverCC = new ServerSocket(1133);
-        } catch (IOException e) {
+            socketCC = new Socket[numHermanos];
+            timestamps = new long[numHermanos+1];
+            fillTimestamps();
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
@@ -18,16 +24,11 @@ public class ProcessLWA2 extends ProcessLW {
     protected void makeConnections() {
         try {
             socketSC = new Socket("localhost", 3030);
-            /*input = socketSC.getInputStream();
-            br = new BufferedReader(new InputStreamReader(input));
-            output = new DataOutputStream(socketSC.getOutputStream());*/
+            for (int i = 0; i < numHermanos; i++) {
+                socketCC[i] = serverCC.accept();
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    @Override
-    protected void makeDelay() throws InterruptedException {
-        Thread.sleep(1000);
     }
 }

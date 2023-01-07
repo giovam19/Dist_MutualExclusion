@@ -10,9 +10,8 @@ public class ProcessHW extends Thread{
     protected ServerSocket serverClient;
     protected Socket socketSS;
     protected Socket[] socketSC;
-    protected InputStream input;
-    protected BufferedReader br;
-    protected DataOutputStream output;
+    protected ObjectInputStream input;
+    protected ObjectOutputStream output;
 
     public void startProcess() {
         makeConnections();
@@ -35,10 +34,9 @@ public class ProcessHW extends Thread{
         }
     }
 
-    private void listenHeavyweight() throws IOException {
-        input = socketSS.getInputStream();
-        br = new BufferedReader(new InputStreamReader(input));
-        String str = br.readLine();
+    private void listenHeavyweight() throws Exception {
+        input = new ObjectInputStream(socketSS.getInputStream());
+        String str = (String) input.readObject();
         if (str.equals("TOKENOK")) {
             token = 1;
         }
@@ -46,18 +44,15 @@ public class ProcessHW extends Thread{
 
     private void sendActionToLightweight() throws Exception {
         for (int i = 0; i < NUM_LIGHTWEIGHTS; i++) {
-            output = new DataOutputStream(socketSC[i].getOutputStream());
-            output.writeBytes("TOKENLWOK\n\r");
-            //Thread.sleep(0, 15);
-            output.flush();
+            output = new ObjectOutputStream(socketSC[i].getOutputStream());
+            output.writeObject("TOKENLWOK");
         }
     }
 
-    private void listenLightweight() throws IOException {
+    private void listenLightweight() throws Exception {
         for (int i = 0; i < NUM_LIGHTWEIGHTS; i++) {
-            input = socketSC[i].getInputStream();
-            br = new BufferedReader(new InputStreamReader(input));
-            String str = br.readLine();
+            input = new ObjectInputStream(socketSC[i].getInputStream());
+            String str = (String) input.readObject();
             if (str.equals("LWOK")) {
                 answersLW++;
             }
@@ -65,10 +60,8 @@ public class ProcessHW extends Thread{
     }
 
     private void sendTokenToHeavyweight() throws Exception {
-        output = new DataOutputStream(socketSS.getOutputStream());
-        output.writeBytes("TOKENOK\n\r");
-        //Thread.sleep(0, 15);
-        output.flush();
+        output = new ObjectOutputStream(socketSS.getOutputStream());
+        output.writeObject("TOKENOK");
 
     }
 
